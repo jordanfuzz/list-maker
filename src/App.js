@@ -1,30 +1,75 @@
-import React, { Component } from "react";
-import logo from "./logo.svg";
-import "./App.css";
+import React, { Component } from 'react'
+import './App.css'
+import ComparisonOptions from './components/ComparisonOptions/ComparisonOptions'
 
 class App extends Component {
   constructor() {
-    super();
+    super()
 
     this.state = {
-      textField: "",
-      items: []
-    };
+      textField: '',
+      items: [],
+      comparisonsStarted: false,
+      comparisonsIndex: 0,
+      alreadyComparedItems: [],
+      swapped: true,
+      comparisonsFinished: false,
+    }
 
     this.handleTextFieldChange = this.handleTextFieldChange.bind(this)
     this.handleStart = this.handleStart.bind(this)
+    this.handleNext = this.handleNext.bind(this)
+    this.handleStartOver = this.handleStartOver.bind(this)
+    this.renderFinishedList = this.renderFinishedList.bind(this)
   }
 
   handleTextFieldChange(event) {
     this.setState({
-      textField: event.target.value
-    });
+      textField: event.target.value,
+    })
   }
 
   handleStart(event) {
     event.preventDefault()
     this.setState({
-      items: this.state.textField.split()
+      items: this.state.textField.split('\n').reverse(),
+      comparisonsStarted: true,
+      comparisonsFinished: false,
+    })
+  }
+
+  handleStartOver() {
+    if (!this.state.swapped) {
+      this.setState({
+        comparisonsFinished: true,
+      })
+    } else {
+      console.log('Should be starting over')
+      this.setState({
+        comparisonsIndex: 0,
+        swapped: false,
+      })
+    }
+  }
+
+  handleNext(swapped) {
+    let { items, comparisonsIndex } = this.state
+    if (swapped) {
+      this.setState({
+        swapped: true,
+      })
+    }
+
+    if (comparisonsIndex >= items.length - 2) this.handleStartOver()
+    else
+      this.setState({
+        comparisonsIndex: comparisonsIndex + 1,
+      })
+  }
+
+  renderFinishedList() {
+    return this.state.items.reverse().map((item, i) => {
+      return <li key={i}>{item}</li>
     })
   }
 
@@ -36,11 +81,22 @@ class App extends Component {
           className="text-box"
           type="text"
           value={this.state.textField}
+          onChange={this.handleTextFieldChange}
         />
-        <button onClick={}>Start</button>
+        <button onClick={this.handleStart}>Start</button>
+        {this.state.comparisonsStarted && !this.state.comparisonsFinished ? (
+          <ComparisonOptions
+            index={this.state.comparisonsIndex}
+            items={this.state.items}
+            handleNext={this.handleNext}
+            comparisonsFinished={this.state.comparisonsFinished}
+          />
+        ) : (
+          <ol>{this.renderFinishedList()}</ol>
+        )}
       </div>
-    );
+    )
   }
 }
 
-export default App;
+export default App

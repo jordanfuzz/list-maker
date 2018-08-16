@@ -1,0 +1,11 @@
+.options-container {
+  margin-top: 50px;
+}
+
+.options {
+  border: 2px solid gray;
+  height: 50px;
+  width: 200px;
+  margin: 100px;
+  cursor: pointer;
+}

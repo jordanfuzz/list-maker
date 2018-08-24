@@ -21,6 +21,8 @@ class App extends Component {
     this.handleNext = this.handleNext.bind(this)
     this.handleStartOver = this.handleStartOver.bind(this)
     this.renderFinishedList = this.renderFinishedList.bind(this)
+    this.shouldSkip = this.shouldSkip.bind(this)
+    this.recordPairAndSkipIfNeeded = this.recordPairAndSkipIfNeeded.bind(this)
   }
 
   handleTextFieldChange(event) {
@@ -52,19 +54,58 @@ class App extends Component {
     }
   }
 
-  handleNext(swapped) {
+  handleNext(firstItem, secondItem, swapped) {
     let { items, comparisonsIndex } = this.state
+    let firstItem = items[comparisonsIndex]
+    let secondItem = items[comparisonsIndex + 1]
+
+    if (!secondItem) this.handleStartOver()
+
     if (swapped) {
       this.setState({
         swapped: true,
       })
     }
 
-    if (comparisonsIndex >= items.length - 2) this.handleStartOver()
-    else
-      this.setState({
-        comparisonsIndex: comparisonsIndex + 1,
-      })
+    if (comparisonsIndex >= items.length - 2) {
+      this.handleStartOver()
+    } else {
+      this.setState(
+        {
+          comparisonsIndex: comparisonsIndex + 1,
+        },
+        () => {
+          this.recordPairAndSkipIfNeeded(firstItem, secondItem)
+        }
+      )
+    }
+  }
+
+  recordPairAndSkipIfNeeded(firstItem, secondItem) {
+    let { alreadyComparedItems } = this.state
+    if (this.shouldSkip()) {
+      console.log('skipping next')
+      this.handleNext(firstItem + 1, secondItem + 1, false)
+    } else {
+      alreadyComparedItems.push(`${firstItem}, ${secondItem}`)
+      console.log('recorded pair', `${firstItem}, ${secondItem}`)
+    }
+  }
+
+  shouldSkip() {
+    let { items, alreadyComparedItems, comparisonsIndex } = this.state
+    let firstItem = items[comparisonsIndex]
+    let secondItem = items[comparisonsIndex + 1]
+
+    if (!items[comparisonsIndex + 2]) return false
+
+    let result = alreadyComparedItems.find(itemPair => {
+      return itemPair === `${firstItem}, ${secondItem}`
+    })
+    console.log('already have:', alreadyComparedItems)
+    console.log('looking for:', `${firstItem}, ${secondItem}`)
+    console.log('returning:', !!result)
+    return !!result
   }
 
   renderFinishedList() {

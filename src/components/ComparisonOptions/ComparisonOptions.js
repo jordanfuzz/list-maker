@@ -13,7 +13,7 @@ class ComparisonOptions extends Component {
     items[i] = items[j]
     items[j] = temp
 
-    this.props.handleNext(true)
+    this.props.handleNext(items[i + 1], items[j + 1], true)
   }
 
   render() {
@@ -21,7 +21,7 @@ class ComparisonOptions extends Component {
 
     return (
       <div>
-        {this.props.comparisonsfinished ? (
+        {this.props.comparisonsFinished ? (
           <div>Dunzo</div>
         ) : (
           <div className="options-container">
@@ -33,7 +33,9 @@ class ComparisonOptions extends Component {
             </span>
             <span
               className="options"
-              onClick={() => this.props.handleNext(false)}
+              onClick={() =>
+                this.props.handleNext(items[index + 1], items[index + 2], false)
+              }
             >
               {items[index + 1]}
             </span>

@@ -55,11 +55,9 @@ class App extends Component {
   }
 
   handleNext(firstItem, secondItem, swapped) {
-    let { items, comparisonsIndex } = this.state
-    let firstItem = items[comparisonsIndex]
-    let secondItem = items[comparisonsIndex + 1]
-
-    if (!secondItem) this.handleStartOver()
+    console.log(`Index: ${this.state.comparisonsIndex}`)
+    console.log(`Item to be compared: ${firstItem}`)
+    if (!firstItem || !secondItem) this.handleStartOver()
 
     if (swapped) {
       this.setState({
@@ -67,18 +65,14 @@ class App extends Component {
       })
     }
 
-    if (comparisonsIndex >= items.length - 2) {
-      this.handleStartOver()
-    } else {
-      this.setState(
-        {
-          comparisonsIndex: comparisonsIndex + 1,
-        },
-        () => {
-          this.recordPairAndSkipIfNeeded(firstItem, secondItem)
-        }
-      )
-    }
+    this.setState(
+      {
+        comparisonsIndex: this.state.comparisonsIndex + 1,
+      },
+      () => {
+        this.recordPairAndSkipIfNeeded(firstItem, secondItem)
+      }
+    )
   }
 
   recordPairAndSkipIfNeeded(firstItem, secondItem) {

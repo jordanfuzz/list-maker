@@ -14,6 +14,7 @@ class App extends Component {
       alreadyComparedItems: [],
       swapped: true,
       comparisonsFinished: false,
+      // shouldStartOver: false,
     }
 
     this.handleTextFieldChange = this.handleTextFieldChange.bind(this)
@@ -23,6 +24,7 @@ class App extends Component {
     this.renderFinishedList = this.renderFinishedList.bind(this)
     this.shouldSkip = this.shouldSkip.bind(this)
     this.recordPairAndSkipIfNeeded = this.recordPairAndSkipIfNeeded.bind(this)
+    this.logListState = this.logListState.bind(this)
   }
 
   handleTextFieldChange(event) {
@@ -41,71 +43,105 @@ class App extends Component {
   }
 
   handleStartOver() {
+    console.log(
+      '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ starting over (next)',
+      this.state.swapped
+    )
     if (!this.state.swapped) {
       this.setState({
         comparisonsFinished: true,
       })
     } else {
-      console.log('Should be starting over')
-      this.setState({
-        comparisonsIndex: 0,
-        swapped: false,
-      })
+      // console.log('Should be starting over')
+      this.setState(
+        {
+          comparisonsIndex: 0,
+          swapped: false,
+        },
+        () => console.log('comparisonsIndex', this.state.comparisonsIndex)
+      )
     }
   }
 
-  handleNext(firstItem, secondItem, swapped) {
-    console.log(`Index: ${this.state.comparisonsIndex}`)
-    console.log(`Item to be compared: ${firstItem}`)
-    if (!firstItem || !secondItem) this.handleStartOver()
+  logListState() {
+    let { items, comparisonsIndex } = this.state
+    console.log(
+      items
+        .map((item, i) => {
+          if (i === comparisonsIndex || i === comparisonsIndex + 1)
+            return `{${item}}`
+          return item
+        })
+        .join(', ')
+    )
+  }
 
+  //maybe remove firstItem/secondItem? Strictly use comparison index?
+  handleNext(firstItem, secondItem, swapped) {
+    console.log('inside handleNext', firstItem, secondItem)
+    if (!firstItem || !secondItem) return this.handleStartOver()
+
+    if (this.recordPairAndSkipIfNeeded(firstItem, secondItem)) return
     if (swapped) {
       this.setState({
         swapped: true,
       })
     }
-
     this.setState(
       {
         comparisonsIndex: this.state.comparisonsIndex + 1,
+        // check for future start overs?
+        // shouldStartOver:
+        //   !items[comparisonsIndex + 2] || !items[comparisonsIndex + 3],
       },
-      () => {
-        this.recordPairAndSkipIfNeeded(firstItem, secondItem)
-      }
+      this.logListState
     )
   }
 
   recordPairAndSkipIfNeeded(firstItem, secondItem) {
+    let { items, comparisonsIndex } = this.state
+    console.log('Record Pair or Skip')
+    // console.log('first item: ', firstItem)
+    // console.log('second item: ', secondItem)
     let { alreadyComparedItems } = this.state
-    if (this.shouldSkip()) {
+    if (this.shouldSkip(firstItem, secondItem)) {
       console.log('skipping next')
-      this.handleNext(firstItem + 1, secondItem + 1, false)
+      //hmm...
+      this.setState(
+        {
+          comparisonsIndex: comparisonsIndex + 1,
+        },
+        () =>
+          this.handleNext(
+            items[comparisonsIndex],
+            items[comparisonsIndex + 1],
+            false
+          )
+      )
+      return true
     } else {
       alreadyComparedItems.push(`${firstItem}, ${secondItem}`)
-      console.log('recorded pair', `${firstItem}, ${secondItem}`)
+      return false
+      // console.log('recording')
+      // console.log('recorded pair', firstItem, secondItem)
+      // console.log('recorded items: ', alreadyComparedItems)
     }
   }
 
-  shouldSkip() {
-    let { items, alreadyComparedItems, comparisonsIndex } = this.state
-    let firstItem = items[comparisonsIndex]
-    let secondItem = items[comparisonsIndex + 1]
+  shouldSkip(firstItem, secondItem) {
+    console.log('inside skip function')
 
-    if (!items[comparisonsIndex + 2]) return false
+    // if (this.state.shouldStartOver) return this.handleStartOver()
 
-    let result = alreadyComparedItems.find(itemPair => {
+    let result = this.state.alreadyComparedItems.find(itemPair => {
       return itemPair === `${firstItem}, ${secondItem}`
     })
-    console.log('already have:', alreadyComparedItems)
-    console.log('looking for:', `${firstItem}, ${secondItem}`)
-    console.log('returning:', !!result)
+    console.log('should I skip?', !!result)
     return !!result
   }
 
   renderFinishedList() {
-    return this.state.items.reverse().map((item, i) => {
-      return <li key={i}>{item}</li>
-    })
+    return this.state.items.map((item, i) => <li key={i}>{item}</li>)
   }
 
   render() {

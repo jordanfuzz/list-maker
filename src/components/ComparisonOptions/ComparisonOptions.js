@@ -9,6 +9,7 @@ class ComparisonOptions extends Component {
   }
 
   handleSwap(items, i, j) {
+    console.log('swapping')
     let temp = items[i]
     items[i] = items[j]
     items[j] = temp

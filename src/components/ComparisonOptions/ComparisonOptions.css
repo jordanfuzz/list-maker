@@ -1,5 +1,5 @@
 .options-container {
-  margin-top: 50px;
+  margin-top: 150px;
 }
 
 .options {
@@ -8,4 +8,9 @@
   width: 200px;
   margin: 100px;
   cursor: pointer;
+  background-color: #eee;
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 30px;
+  color: black;
+  padding: 20px;
 }

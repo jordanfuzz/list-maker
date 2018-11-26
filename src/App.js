@@ -96,21 +96,34 @@ class App extends Component {
   }
 
   renderFinishedList() {
-    return this.state.items.map((item, i) => <li key={i}>{item}</li>)
+    return this.state.items.map((item, i) => (
+      <span className="finished-list-item" key={i}>
+        {item}
+      </span>
+    ))
   }
 
   render() {
+    const { comparisonsFinished, comparisonsStarted } = this.state
     return (
       <div className="App">
-        <span>Paste your text here:</span>
-        <textarea
-          className="text-box"
-          type="text"
-          value={this.state.textField}
-          onChange={this.handleTextFieldChange}
-        />
-        <button onClick={this.handleStart}>Start</button>
-        {this.state.comparisonsStarted && !this.state.comparisonsFinished ? (
+        {!comparisonsStarted & !comparisonsFinished ? (
+          <div>
+            {' '}
+            <span className="text-box-label">
+              Paste or type your unsorted list here:
+            </span>
+            <textarea
+              className="text-box"
+              type="text"
+              value={this.state.textField}
+              onChange={this.handleTextFieldChange}
+            />
+            <button className="start-button" onClick={this.handleStart}>
+              Start
+            </button>{' '}
+          </div>
+        ) : comparisonsStarted && !comparisonsFinished ? (
           <ComparisonOptions
             index={this.state.comparisonsIndex}
             items={this.state.items}
@@ -118,7 +131,9 @@ class App extends Component {
             comparisonsFinished={this.state.comparisonsFinished}
           />
         ) : (
-          <ol>{this.renderFinishedList()}</ol>
+          <div className="finished-list-container">
+            {this.renderFinishedList()}
+          </div>
         )}
       </div>
     )

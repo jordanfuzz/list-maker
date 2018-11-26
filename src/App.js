@@ -14,7 +14,6 @@ class App extends Component {
       alreadyComparedItems: [],
       swapped: true,
       comparisonsFinished: false,
-      // shouldStartOver: false,
     }
 
     this.handleTextFieldChange = this.handleTextFieldChange.bind(this)
@@ -24,7 +23,6 @@ class App extends Component {
     this.renderFinishedList = this.renderFinishedList.bind(this)
     this.shouldSkip = this.shouldSkip.bind(this)
     this.recordPairAndSkipIfNeeded = this.recordPairAndSkipIfNeeded.bind(this)
-    this.logListState = this.logListState.bind(this)
   }
 
   handleTextFieldChange(event) {
@@ -43,70 +41,35 @@ class App extends Component {
   }
 
   handleStartOver() {
-    console.log(
-      '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ starting over (next)',
-      this.state.swapped
-    )
     if (!this.state.swapped) {
       this.setState({
         comparisonsFinished: true,
       })
     } else {
-      // console.log('Should be starting over')
-      this.setState(
-        {
-          comparisonsIndex: 0,
-          swapped: false,
-        },
-        () => console.log('comparisonsIndex', this.state.comparisonsIndex)
-      )
+      this.setState({
+        comparisonsIndex: 0,
+        swapped: false,
+      })
     }
   }
 
-  logListState() {
-    let { items, comparisonsIndex } = this.state
-    console.log(
-      items
-        .map((item, i) => {
-          if (i === comparisonsIndex || i === comparisonsIndex + 1)
-            return `{${item}}`
-          return item
-        })
-        .join(', ')
-    )
-  }
-
-  //maybe remove firstItem/secondItem? Strictly use comparison index?
   handleNext(firstItem, secondItem, swapped) {
-    console.log('inside handleNext', firstItem, secondItem)
     if (!firstItem || !secondItem) return this.handleStartOver()
-
     if (this.recordPairAndSkipIfNeeded(firstItem, secondItem)) return
     if (swapped) {
       this.setState({
         swapped: true,
       })
     }
-    this.setState(
-      {
-        comparisonsIndex: this.state.comparisonsIndex + 1,
-        // check for future start overs?
-        // shouldStartOver:
-        //   !items[comparisonsIndex + 2] || !items[comparisonsIndex + 3],
-      },
-      this.logListState
-    )
+    this.setState({
+      comparisonsIndex: this.state.comparisonsIndex + 1,
+    })
   }
 
   recordPairAndSkipIfNeeded(firstItem, secondItem) {
     let { items, comparisonsIndex } = this.state
-    console.log('Record Pair or Skip')
-    // console.log('first item: ', firstItem)
-    // console.log('second item: ', secondItem)
     let { alreadyComparedItems } = this.state
     if (this.shouldSkip(firstItem, secondItem)) {
-      console.log('skipping next')
-      //hmm...
       this.setState(
         {
           comparisonsIndex: comparisonsIndex + 1,
@@ -122,21 +85,13 @@ class App extends Component {
     } else {
       alreadyComparedItems.push(`${firstItem}, ${secondItem}`)
       return false
-      // console.log('recording')
-      // console.log('recorded pair', firstItem, secondItem)
-      // console.log('recorded items: ', alreadyComparedItems)
     }
   }
 
   shouldSkip(firstItem, secondItem) {
-    console.log('inside skip function')
-
-    // if (this.state.shouldStartOver) return this.handleStartOver()
-
     let result = this.state.alreadyComparedItems.find(itemPair => {
       return itemPair === `${firstItem}, ${secondItem}`
     })
-    console.log('should I skip?', !!result)
     return !!result
   }
 

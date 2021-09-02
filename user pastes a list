@@ -1,0 +1,37 @@
+user pastes a list
+user presses start
+
+breaks the list into individual items
+shows user the first two items
+** If they click the first item **
+- it swaps the position, moving it further in the array
+- it checks to see if there is an item AFTER the second of the two
+**** If there is ****
+-- it then moves to the next index in the array
+**** If there is not ****
+-- it returns to the beginning of the list
+
+
+** If they click the second item **
+- it moves to the next index in the array
+
+If a pair has already been compared, it should remember the pair and not ask the user for that comparison again
+
+If it goes through every pair without swapping anything, the list is done.
+finally, it flips the list and displays it
+
+
+
+
+apple
+banana
+lime
+kiwi
+
+
+
+[ zesty lemon,   <----this is the lowest on the list
+grapefruit,
+cactus fruit,
+banana
+apple ]    <---- this is the highest

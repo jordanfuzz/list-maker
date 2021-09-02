@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import './comparison-options.css'
 
 function ComparisonOptions(props) {
@@ -7,7 +7,7 @@ function ComparisonOptions(props) {
     items[i] = items[j]
     items[j] = temp
 
-    props.handleNext(items[i + 1], items[j + 1], true)
+    props.handleNext(items[i], items[j], true)
   }
 
   let { items, index } = props
@@ -27,7 +27,7 @@ function ComparisonOptions(props) {
           <span
             className="options"
             onClick={() =>
-              props.handleNext(items[index + 1], items[index + 2], false)
+              props.handleNext(items[index], items[index + 1], false)
             }
           >
             {items[index + 1]}

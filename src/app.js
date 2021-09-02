@@ -5,56 +5,62 @@ import ComparisonOptions from './components/comparison-options/comparison-option
 function App() {
   const [textField, setTextField] = useState('')
   const [items, setItems] = useState([])
-  const [comparisonsStarted, setComparisonsStarted] = useState(false)
   const [comparisonsIndex, setComparisonsIndex] = useState(0)
-  const [alreadyComparedItems, setAlreadyComparedItems] = useState([])
-  const [swapped, setSwapped] = useState(true)
+  const [comparisonsStarted, setComparisonsStarted] = useState(false)
   const [comparisonsFinished, setComparisonsFinished] = useState(false)
+  const [wasSwappedThisRound, setWasSwappedThisRound] = useState(false)
+  const [alreadyComparedItems, setAlreadyComparedItems] = useState([])
 
   const handleStart = event => {
     event.preventDefault()
+    //TODO - Validate this list, make sure it's not empty, has no breaking characters, and has no duplicates
     setItems(textField.split('\n').reverse())
     setComparisonsStarted(true)
     setComparisonsFinished(false)
   }
 
   const handleStartOver = () => {
-    if (!swapped) {
-      setComparisonsFinished(true)
-    } else {
+    console.log('STARTING OVER!')
+    if (!wasSwappedThisRound) setComparisonsFinished(true)
+    else {
       setComparisonsIndex(0)
-      setSwapped(false)
+      setWasSwappedThisRound(false)
     }
   }
 
   const handleNext = (firstItem, secondItem, wasSwapped) => {
-    if (!firstItem || !secondItem) return handleStartOver()
-    if (recordPairAndSkipIfNeeded(firstItem, secondItem)) return
-    if (wasSwapped) {
-      setSwapped(true)
-    }
-    setComparisonsIndex(comparisonsIndex + 1)
+    recordPair(firstItem, secondItem)
+    if (wasSwapped) setWasSwappedThisRound(true)
+    if (!items[comparisonsIndex + 2]) return handleStartOver()
+
+    const nextIndex = findNextUncomparedIndex(comparisonsIndex + 1)
+
+    setComparisonsIndex(nextIndex)
   }
 
-  const recordPairAndSkipIfNeeded = (firstItem, secondItem) => {
-    if (shouldSkip(firstItem, secondItem)) {
-      setComparisonsIndex(comparisonsIndex + 1)
-      handleNext(items[comparisonsIndex], items[comparisonsIndex + 1], false)
-      return true
-    } else {
-      setAlreadyComparedItems([
-        ...alreadyComparedItems,
-        `${firstItem}, ${secondItem}`,
-      ])
-      return false
-    }
+  const recordPair = (firstItem, secondItem) => {
+    setAlreadyComparedItems([
+      ...alreadyComparedItems,
+      `${firstItem}, ${secondItem}`,
+    ])
   }
 
-  const shouldSkip = (firstItem, secondItem) => {
-    let result = alreadyComparedItems.find(itemPair => {
-      return itemPair === `${firstItem}, ${secondItem}`
+  const findNextUncomparedIndex = startIndex => {
+    let nextIndex = startIndex
+
+    items.every((item, i, arr) => {
+      if (i < startIndex) return true
+      console.log('at index', i)
+      const pairString = `${item}, ${arr[i + 1]}`
+      console.log('pear string', pairString)
+      if (!alreadyComparedItems.find(itemPair => itemPair === pairString)) {
+        console.log('Next index should be: ', i)
+        nextIndex = i
+        return false
+      } else return true
     })
-    return !!result
+
+    return nextIndex
   }
 
   const renderFinishedList = () => {
@@ -65,11 +71,17 @@ function App() {
     ))
   }
 
+  console.log('Rendering...', {
+    items,
+    comparisonsIndex,
+    wasSwappedThisRound,
+    alreadyComparedItems,
+  })
+
   return (
     <div className="App">
       {!comparisonsStarted & !comparisonsFinished ? (
         <div>
-          {' '}
           <span className="text-box-label">
             Paste or type your unsorted list here:
           </span>
@@ -81,12 +93,12 @@ function App() {
           />
           <button className="start-button" onClick={handleStart}>
             Start
-          </button>{' '}
+          </button>
         </div>
       ) : comparisonsStarted && !comparisonsFinished ? (
         <ComparisonOptions
-          index={comparisonsIndex}
           items={items}
+          index={comparisonsIndex}
           handleNext={handleNext}
           comparisonsFinished={comparisonsFinished}
         />
